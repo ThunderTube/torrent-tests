@@ -4,12 +4,13 @@
   "description": "",
   "main": "get-movies.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node router.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "got": "^10.3.0",
+    "polka": "^0.5.2",
     "torrent-stream": "^1.2.0",
     "yifysubtitles-api": "^1.0.0"
   }

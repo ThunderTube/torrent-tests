@@ -50,23 +50,9 @@ async function streamTorrent(movie) {
 
   const tor = new Torrent(magnetLink);
 
-  const files = await tor.download();
-
-  files.forEach((file, index) => {
-    console.log(`${index} => ${file.name}/${file.length}B`);
-
-    const stream = file.createReadStream();
-
-    stream.pipe(fs.createWriteStream(join(__dirname, file.name)));
-  });
+  return tor.download();
 }
 
-async function app() {
-  const movie = MOVIES[663];
-
-  console.log("movie =", movie);
-
-  return streamTorrent(movie);
-}
-
-app().catch(console.error);
+module.exports.MOVIES = MOVIES
+module.exports.fetchMovies = fetchMovies
+module.exports.streamTorrent = streamTorrent
