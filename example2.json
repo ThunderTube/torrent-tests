@@ -1,0 +1,55 @@
+{
+  "id": "tt6450804",
+  "imdbID": "tt6450804",
+  "title": "Terminator: Dark Fate",
+  "year": "2019",
+  "synopsis": "Decades after Sarah Connor prevented Judgment Day, a lethal new Terminator is sent to eliminate the future leader of the resistance. In a fight to save mankind, battle-hardened Sarah Connor teams up with an unexpected ally and an enhanced super soldier to stop the deadliest Terminator yet.",
+  "runtime": "128",
+  "releasedTimestamp": 1572566400000,
+  "certification": "R",
+  "trailer": "http://youtube.com/watch?v=8CjYw1hARhY",
+  "genres": ["science-fiction", "action"],
+  "images": {
+    "poster": "http://image.tmdb.org/t/p/w500/vqzNJRH4YyquRiWxCCOH0aXggHI.jpg",
+    "fanart": "http://image.tmdb.org/t/p/w500/riTANvQ8GKmQbgtC1ps3OfkU43A.jpg",
+    "banner": "http://image.tmdb.org/t/p/w500/vqzNJRH4YyquRiWxCCOH0aXggHI.jpg"
+  },
+  "rating": {
+    "percentage": 71,
+    "watching": 32,
+    "votes": 5241,
+    "loved": 100,
+    "hated": 100
+  },
+  "torrents": {
+    "en": {
+      "2160p": {
+        "resolution": "2160p",
+        "url": "magnet:?xt=urn:btih:5B80F8D113D0E60D1826DBBF270098BAB6C57141&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.internetwarriors.net:1337",
+        "seeds": 881,
+        "peers": 881,
+        "size": 4563402752,
+        "fileSize": "4.25 GB",
+        "provider": "YTS"
+      },
+      "1080p": {
+        "resolution": "1080p",
+        "url": "magnet:?xt=urn:btih:A6BB49D09BDFE0C11E3A9089AE2963A875C2F10F&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.internetwarriors.net:1337",
+        "seeds": 16392,
+        "peers": 16392,
+        "size": 2394444268,
+        "fileSize": "2.23 GB",
+        "provider": "YTS"
+      },
+      "720p": {
+        "resolution": "720p",
+        "url": "magnet:?xt=urn:btih:9A5828A8E1E38128866DEE16D35015181023B46F&tr=udp://glotorrents.pw:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://torrent.gresille.org:80/announce&tr=udp://tracker.openbittorrent.com:80&tr=udp://tracker.coppersurfer.tk:6969&tr=udp://tracker.leechers-paradise.org:6969&tr=udp://p4p.arenabg.ch:1337&tr=udp://tracker.internetwarriors.net:1337",
+        "seeds": 13450,
+        "peers": 13450,
+        "size": 1202590843,
+        "fileSize": "1.12 GB",
+        "provider": "YTS"
+      }
+    }
+  }
+}

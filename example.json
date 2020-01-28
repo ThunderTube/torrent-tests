@@ -1,0 +1,53 @@
+{
+  "id": 15124,
+  "url": "https://yts.lt/movie/mchales-navy-1997",
+  "imdb_code": "tt0119640",
+  "title": "McHale's Navy",
+  "title_english": "McHale's Navy",
+  "title_long": "McHale's Navy (1997)",
+  "slug": "mchales-navy-1997",
+  "year": 1997,
+  "rating": 4.6,
+  "runtime": 108,
+  "genres": ["Action", "Comedy"],
+  "summary": "Retired Lieutenant Commander Quinton McHale (Tom Arnold) spends his days puttering around the Caribbean in the old PT-73 selling homebrew, ice cream, and swimsuit calendars. He's brought out of retirement when his old nemesis turned the second best terrorist in the world, Major Vladakov (Tim Curry), takes over the island of San Moreno and starts building a nuclear launch silo on it. With help from his old crew and hindrances from Captain Wallace B. Binghampton (Dean Stockwell), who sank a cruise liner a while back, McHale tries to put Vladakov out of business.",
+  "description_full": "Retired Lieutenant Commander Quinton McHale (Tom Arnold) spends his days puttering around the Caribbean in the old PT-73 selling homebrew, ice cream, and swimsuit calendars. He's brought out of retirement when his old nemesis turned the second best terrorist in the world, Major Vladakov (Tim Curry), takes over the island of San Moreno and starts building a nuclear launch silo on it. With help from his old crew and hindrances from Captain Wallace B. Binghampton (Dean Stockwell), who sank a cruise liner a while back, McHale tries to put Vladakov out of business.",
+  "synopsis": "Retired Lieutenant Commander Quinton McHale (Tom Arnold) spends his days puttering around the Caribbean in the old PT-73 selling homebrew, ice cream, and swimsuit calendars. He's brought out of retirement when his old nemesis turned the second best terrorist in the world, Major Vladakov (Tim Curry), takes over the island of San Moreno and starts building a nuclear launch silo on it. With help from his old crew and hindrances from Captain Wallace B. Binghampton (Dean Stockwell), who sank a cruise liner a while back, McHale tries to put Vladakov out of business.",
+  "yt_trailer_code": "K_MLWXe3PCc",
+  "language": "English",
+  "mpa_rating": "PG",
+  "background_image": "https://yts.lt/assets/images/movies/mchales_navy_1997/background.jpg",
+  "background_image_original": "https://yts.lt/assets/images/movies/mchales_navy_1997/background.jpg",
+  "small_cover_image": "https://yts.lt/assets/images/movies/mchales_navy_1997/small-cover.jpg",
+  "medium_cover_image": "https://yts.lt/assets/images/movies/mchales_navy_1997/medium-cover.jpg",
+  "large_cover_image": "https://yts.lt/assets/images/movies/mchales_navy_1997/large-cover.jpg",
+  "state": "ok",
+  "torrents": [
+    {
+      "url": "https://yts.lt/torrent/download/E00987B7F572F2B25E7F89E2CA4C6E6A794EAA27",
+      "hash": "E00987B7F572F2B25E7F89E2CA4C6E6A794EAA27",
+      "quality": "720p",
+      "type": "web",
+      "seeds": 88,
+      "peers": 69,
+      "size": "999.09 MB",
+      "size_bytes": 1047621796,
+      "date_uploaded": "2020-01-27 07:56:14",
+      "date_uploaded_unix": 1580108174
+    },
+    {
+      "url": "https://yts.lt/torrent/download/0E382C009382E97B0D81187D5062821172DDF31C",
+      "hash": "0E382C009382E97B0D81187D5062821172DDF31C",
+      "quality": "1080p",
+      "type": "web",
+      "seeds": 0,
+      "peers": 0,
+      "size": "1.93 GB",
+      "size_bytes": 2072321720,
+      "date_uploaded": "2020-01-27 10:24:22",
+      "date_uploaded_unix": 1580117062
+    }
+  ],
+  "date_uploaded": "2020-01-27 07:56:14",
+  "date_uploaded_unix": 1580108174
+}
