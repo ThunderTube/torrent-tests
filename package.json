@@ -4,7 +4,8 @@
   "description": "",
   "main": "get-movies.js",
   "scripts": {
-    "start": "node router.js"
+    "start:router": "node router.js",
+    "seed": "node seeder.js"
   },
   "author": "",
   "license": "ISC",
