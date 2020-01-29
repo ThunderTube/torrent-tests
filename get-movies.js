@@ -1,50 +1,10 @@
 const got = require("got");
 const popcorn = require("popcorn-api");
-const fs = require("fs");
-const { join } = require("path");
 const Joi = require("@hapi/joi");
-
-const { Torrent } = require("./torrent");
 
 const MOVIES_ORIGINS = {
   POPCORN_TIME: "POPCORN_TIME",
   YTS: "YTS"
-};
-
-const MOVIE_EXAMPLE = {
-  _id: "tt0076759",
-  origin: MOVIES_ORIGINS.YTS, // OR `Popcorn`
-  title: "",
-  description: "",
-  language: "English",
-  year: 1977,
-  genres: ["action"],
-  crew: [
-    {
-      name: "Scott Silver",
-      job: "Writer"
-    }
-  ],
-  cast: [
-    {
-      character: "Arthur Fleck / Jocker",
-      name: "Joaquin Phoenix",
-      profile: "https://image.tmdb.org/t/p/w500/9N7FNKUhjtinrNPy8ANvXrB7iEr.jpg"
-    }
-  ],
-  image: "https://image.tmdb.org/t/p/w500/n6bUvigpRFqSwmPp1m2YADdbRBc.jpg", // poster_path
-  rating: 6.7, // vote_average
-  runtime: 122, // movie duration
-  torrents: [
-    {
-      resolution: "1080p",
-      url: "magnet:...",
-      language: " en",
-      seeds: 1917,
-      peers: 1917,
-      size: 2132564654
-    }
-  ]
 };
 
 async function fetchMoviesFromYTS(prevMovies = [], page = 1) {
@@ -185,22 +145,6 @@ function formatMovieFromPopcornTime({
   };
 }
 
-async function streamTorrent(movie) {
-  const {
-    title,
-    torrents: [torrent]
-  } = movie;
-  const { hash } = torrent;
-
-  const magnetLink = `magnet:?xt=urn:btih:${hash}&dn=${encodeURIComponent(
-    title
-  )}`;
-
-  const tor = new Torrent(magnetLink);
-
-  return tor.download();
-}
-
 /**
  * `getMovies` fetches movies from two data providers.
  *
@@ -219,10 +163,9 @@ async function getMovies() {
 
   const movies = await completeMoviesInformations(baseMovies);
 
-  fs.writeFileSync(
-    join(__dirname, "./db.json"),
-    JSON.stringify(movies, null, 2)
-  );
+  checkDBEntriesIntegrity(movies);
+
+  return movies;
 }
 
 function removeDuplicates(movies) {
@@ -312,9 +255,7 @@ function toTMDBImage(path) {
   return `https://image.tmdb.org/t/p/w500${path}`;
 }
 
-function checkDBEntriesIntegrity() {
-  const MOVIES = require("./db.json");
-
+function checkDBEntriesIntegrity(movies) {
   const schema = Joi.array()
     .items(
       Joi.object({
@@ -384,27 +325,10 @@ function checkDBEntriesIntegrity() {
     .min(0)
     .required();
 
-  const { error } = schema.validate(MOVIES);
+  const { error } = schema.validate(movies);
   if (error !== undefined) {
     throw new Error(error);
   }
 }
 
-async function app() {
-  // try {
-  //   checkDBEntriesIntegrity();
-
-  //   console.log("All entries are correct");
-  // } catch (e) {
-  //   console.error(e);
-  // }
-
-  getMovies().then(() => console.log("> Saved the movies to ./db.json"));
-}
-
-app().catch(console.error);
-
-// module.exports.MOVIES = MOVIES;
-module.exports.fetchMoviesFromYTS = fetchMoviesFromYTS;
-module.exports.fetchMoviesFromPopcornTime = fetchMoviesFromPopcornTime;
-module.exports.streamTorrent = streamTorrent;
+module.exports.getMovies = getMovies;
