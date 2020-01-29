@@ -1,17 +1,7 @@
 const { Torrent } = require("./torrent");
 
-async function streamTorrent(movie) {
-  const {
-    title,
-    torrents: [torrent]
-  } = movie;
-  const { hash } = torrent;
-
-  const magnetLink = `magnet:?xt=urn:btih:${hash}&dn=${encodeURIComponent(
-    title
-  )}`;
-
-  const tor = new Torrent(magnetLink);
+async function streamTorrent({ url }) {
+  const tor = new Torrent(url);
 
   return tor.download();
 }

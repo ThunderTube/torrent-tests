@@ -82,4 +82,4 @@ OpenSubtitles.search({
   .catch(console.error);
 ```
 
-The subtitles links can directly be used on the client side and put into the `src` attribut of the [track tag](https://developer.mozilla.org/fr/docs/Web/HTML/Element/track).
+The subtitles links can directly be used on the client side and be put into the `src` attribute of the [track tag](https://developer.mozilla.org/fr/docs/Web/HTML/Element/track).

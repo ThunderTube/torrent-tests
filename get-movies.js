@@ -1,6 +1,7 @@
 const got = require("got");
 const popcorn = require("popcorn-api");
 const Joi = require("@hapi/joi");
+const OS = require("opensubtitles-api");
 
 const MOVIES_ORIGINS = {
   POPCORN_TIME: "POPCORN_TIME",
@@ -331,4 +332,26 @@ function checkDBEntriesIntegrity(movies) {
   }
 }
 
+async function getSubtitles(id) {
+  const OpenSubtitles = new OS({
+    useragent: "TemporaryUserAgent",
+    ssl: true
+  });
+
+  const subtitles = await OpenSubtitles.search({
+    imdbid: id
+  });
+
+  return Object.values(subtitles).map(
+    ({ url, langcode, lang, encoding, score }) => ({
+      url,
+      langcode,
+      lang,
+      encoding,
+      score
+    })
+  );
+}
+
 module.exports.getMovies = getMovies;
+module.exports.getSubtitles = getSubtitles;

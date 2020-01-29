@@ -39,6 +39,7 @@ class Torrent {
     const loadedChunks = new Set();
     const emitter = new EventEmitter();
     let piecesCount = 0;
+    let permittedDownloading = false;
 
     return new Promise((resolve, reject) => {
       this._engine.on("ready", () => {
@@ -67,6 +68,7 @@ class Torrent {
 
         if (percent >= MIN_STREAMING_AUTHORIZATION) {
           emitter.emit("launch");
+          permittedDownloading = true;
         }
 
         console.log("downloading ...", percent);
