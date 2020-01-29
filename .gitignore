@@ -107,3 +107,5 @@ dist
 *.mp4
 *.mkv
 *.srt
+
+db.json

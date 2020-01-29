@@ -2,10 +2,9 @@ const got = require("got");
 const popcorn = require("popcorn-api");
 const fs = require("fs");
 const { join } = require("path");
+const Joi = require("@hapi/joi");
 
 const { Torrent } = require("./torrent");
-
-// const MOVIES = JSON.parse(fs.readFileSync(join(__dirname, "./movies.json")));
 
 const MOVIES_ORIGINS = {
   POPCORN_TIME: "POPCORN_TIME",
@@ -67,7 +66,6 @@ async function fetchMoviesFromYTS(prevMovies = [], page = 1) {
   }
 
   const {
-    movie_count,
     limit,
     movies,
     movies: { length: moviesCount }
@@ -93,7 +91,7 @@ function formatMovieFromYTS({
   medium_cover_image,
   torrents
 }) {
-  if (!Array.isArray(torrents)) {
+  if (!Array.isArray(torrents) || torrents.length === 0) {
     return null;
   }
 
@@ -107,12 +105,12 @@ function formatMovieFromYTS({
     genres,
     image: medium_cover_image,
     runtime,
-    torrents: torrents.map(({ hash, quality, seeds, peers, size }) => ({
+    torrents: torrents.map(({ hash, quality, seeds, peers, size_bytes }) => ({
       resolution: quality,
       url: `magnet:?xt=urn:btih:${hash}&dn=${encodeURIComponent(title)}`,
       seeds,
       peers,
-      size
+      size: size_bytes
     }))
   };
 }
@@ -141,7 +139,8 @@ function formatMovieFromPopcornTime({
   synopsis,
   runtime,
   genres,
-  images: { poster },
+  images,
+  images: { poster } = {},
   torrents
 }) {
   const { en: englishTorrents } = torrents;
@@ -150,6 +149,9 @@ function formatMovieFromPopcornTime({
   if (englishTorrents === undefined) {
     console.error("Could not find english torrents for", imdbID);
     return null;
+  }
+  if (poster === undefined) {
+    console.error("Could not get the poster for", imdbID, images);
   }
 
   for (const [resolution, { url, seeds, peers, size }] of Object.entries(
@@ -162,6 +164,10 @@ function formatMovieFromPopcornTime({
       peers,
       size
     });
+  }
+
+  if (finalTorrentsArray.length === 0) {
+    return null;
   }
 
   return {
@@ -204,7 +210,7 @@ async function streamTorrent(movie) {
  * 3. Return the movies
  */
 async function getMovies() {
-  const FETCHERS = [fetchMoviesFromYTS, fetchMoviesFromPopcornTime];
+  const FETCHERS = [fetchMoviesFromPopcornTime, fetchMoviesFromYTS];
 
   const results = await Promise.all(FETCHERS.map(fn => fn()));
   const baseMovies = removeDuplicates(
@@ -218,10 +224,6 @@ async function getMovies() {
     JSON.stringify(movies, null, 2)
   );
 }
-
-getMovies()
-  .then(() => console.log("filled db.json"))
-  .catch(console.error);
 
 function removeDuplicates(movies) {
   const moviesWithoutDuplicates = [];
@@ -239,7 +241,7 @@ function removeDuplicates(movies) {
 }
 
 async function completeMoviesInformations(movies) {
-  const MAX_CHUNK_LENGTH = 20;
+  const MAX_CHUNK_LENGTH = 100;
   const chunks = [];
   const finalMovies = [];
 
@@ -267,7 +269,7 @@ async function completeMoviesInformations(movies) {
 
 async function completeMovieInformations(movie) {
   try {
-    const [{ vote_average }, { cast, crew }] = await Promise.all(
+    const [{ vote_average, poster_path }, { cast, crew }] = await Promise.all(
       ["", "/credits"].map(url =>
         got(`https://api.themoviedb.org/3/movie/${movie._id}${url}`, {
           searchParams: {
@@ -277,17 +279,130 @@ async function completeMovieInformations(movie) {
       )
     );
 
+    const image =
+      movie.image && movie.image.startsWith("http")
+        ? movie.image
+        : toTMDBImage(poster_path);
+
+    if (image === null) {
+      console.error("Could not get a picture for this movie", movie._id);
+      return null;
+    }
+
     return {
       ...movie,
       rating: vote_average,
-      cast,
-      crew
+      cast: cast.map(({ character, name, profile_path }) => ({
+        character,
+        name,
+        profile: profile_path && toTMDBImage(profile_path)
+      })),
+      crew: crew.map(({ name, job }) => ({ name, job })),
+      image
     };
   } catch (e) {
-    console.error(e, movie._id);
+    console.error(e, movie._id, movie.origin);
     return null;
   }
 }
+
+function toTMDBImage(path) {
+  if (!path) return null;
+
+  return `https://image.tmdb.org/t/p/w500${path}`;
+}
+
+function checkDBEntriesIntegrity() {
+  const MOVIES = require("./db.json");
+
+  const schema = Joi.array()
+    .items(
+      Joi.object({
+        _id: Joi.string().required(),
+        origin: Object.values(MOVIES_ORIGINS), // OR `Popcorn`
+        title: Joi.string().required(),
+        description: Joi.string()
+          .allow("")
+          .required(),
+        language: "en",
+        year: [null, Joi.number()],
+        genres: Joi.array()
+          .items(Joi.string())
+          .required(),
+        crew: Joi.array()
+          .items(
+            Joi.object({
+              name: Joi.string().required(),
+              job: Joi.string().required()
+            })
+          )
+          .required(),
+        cast: Joi.array()
+          .items(
+            Joi.object({
+              character: Joi.string()
+                .allow("")
+                .required(),
+              name: Joi.string().required(),
+              profile: [null, Joi.string()]
+            })
+          )
+          .required(),
+        image: Joi.string()
+          .uri()
+          .required(), // poster_path
+        rating: Joi.number()
+          .min(0)
+          .max(10)
+          .required(), // vote_average
+        runtime: Joi.number()
+          .integer()
+          .min(0)
+          .required(), // movie duration
+        torrents: Joi.array()
+          .items(
+            Joi.object({
+              resolution: Joi.string().required(),
+              url: Joi.string().required(),
+              seeds: Joi.number()
+                .integer()
+                .min(0)
+                .required(),
+              peers: Joi.number()
+                .integer()
+                .min(0)
+                .required(),
+              size: Joi.number()
+                .integer()
+                .min(0)
+            })
+          )
+          .min(1)
+          .required()
+      })
+    )
+    .min(0)
+    .required();
+
+  const { error } = schema.validate(MOVIES);
+  if (error !== undefined) {
+    throw new Error(error);
+  }
+}
+
+async function app() {
+  // try {
+  //   checkDBEntriesIntegrity();
+
+  //   console.log("All entries are correct");
+  // } catch (e) {
+  //   console.error(e);
+  // }
+
+  getMovies().then(() => console.log("> Saved the movies to ./db.json"));
+}
+
+app().catch(console.error);
 
 // module.exports.MOVIES = MOVIES;
 module.exports.fetchMoviesFromYTS = fetchMoviesFromYTS;

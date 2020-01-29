@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@hapi/joi": "^17.1.0",
     "got": "^10.3.0",
     "polka": "^0.5.2",
     "popcorn-api": "^1.1.1",
