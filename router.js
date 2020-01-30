@@ -8,7 +8,7 @@ const { streamTorrent } = require("./stream");
 const PORT = 3096;
 
 const STATE = {
-  sse: new Map()
+  videos: new Map()
 };
 
 polka()
@@ -56,14 +56,28 @@ polka()
     }
 
     const { emitter, data } = await streamTorrent(torrent);
+    STATE.videos.set(id, "LOADING");
 
     console.log("data", data);
 
     emitter.on("launch", () => {
       console.log("launch streaming");
+      STATE.videos.set(id, "LOADED");
     });
 
-    res.end(`request the downloading of video ${id}`);
+    send(res, 200, "SUCCESS");
+  })
+  .get("/video/status/:id", (req, res) => {
+    const {
+      params: { id }
+    } = req;
+    if (!id) {
+      send(res, 400);
+      return;
+    }
+
+    const status = STATE.videos.get(id);
+    send(res, status === undefined ? 404 : 200, status);
   })
   .listen(PORT, err => {
     if (err) throw err;
