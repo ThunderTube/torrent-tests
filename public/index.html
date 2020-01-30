@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<title>Torrent Stream Tests</title>
+
+<video id="video" controls>
+  <source id="source" src="/video/chunks/tt1950186/720p" type="video/mp4" />
+</video>
+
+<script>
+  const ID = "tt1950186";
+  const RESOLUTION = "720p";
+  const source = document.getElementById("source");
+  const video = document.getElementById("video");
+
+  fetch(`/download-video/${ID}/${RESOLUTION}`)
+    .then(res => res.text())
+    .then(state => {
+      console.log("state =", state);
+    });
+
+  const intervalId = setInterval(poll, 10_000);
+
+  function poll() {
+    fetch(`/video/status/${ID}/${RESOLUTION}`)
+      .then(res => res.text())
+      .then(state => {
+        if (state === "FIRST_CHUNKS_LOADED") {
+          source.src = `/video/chunks/${ID}/${RESOLUTION}`;
+          clearInterval(intervalId);
+          return;
+        }
+
+        console.log("poll state =", state);
+      });
+  }
+</script>

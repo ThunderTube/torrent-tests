@@ -12,11 +12,13 @@
   "dependencies": {
     "@hapi/joi": "^17.1.0",
     "@polka/send-type": "^0.5.2",
+    "compression": "^1.7.4",
     "got": "^10.3.0",
     "mongoose": "^5.8.10",
     "opensubtitles-api": "^5.1.0",
     "polka": "^0.5.2",
     "popcorn-api": "^1.1.1",
+    "sirv": "^0.4.2",
     "torrent-stream": "^1.2.0",
     "yifysubtitles-api": "^1.0.0"
   }
