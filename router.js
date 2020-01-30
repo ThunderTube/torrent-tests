@@ -17,7 +17,7 @@ polka()
   })
   .get("/video/:id", async (req, res) => {
     try {
-      const movie = MOVIES.find(({ _id }) => _id === req.params.id);
+      const movie = MOVIES.find(({ imdbId }) => imdbId === req.params.id);
       if (movie === undefined) {
         send(res, 404);
         return;
@@ -25,7 +25,7 @@ polka()
 
       send(res, 200, {
         ...movie,
-        subtitles: await getSubtitles(movie._id)
+        subtitles: await getSubtitles(movie.imdbId)
       });
     } catch (e) {
       console.error(e);
@@ -41,7 +41,7 @@ polka()
       return;
     }
 
-    const movie = MOVIES.find(({ _id }) => _id === id);
+    const movie = MOVIES.find(({ imdbId }) => imdbId === id);
     if (movie === undefined) {
       res.end("Not found");
       return;

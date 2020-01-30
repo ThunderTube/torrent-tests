@@ -9,7 +9,6 @@ const MOVIES_ORIGINS = {
 };
 
 async function fetchMoviesFromYTS(prevMovies = [], page = 1) {
-  console.log("> fetch movies from YTS", page);
   const LIMIT = 50;
 
   const { status, status_message, data } = await got(
@@ -57,7 +56,7 @@ function formatMovieFromYTS({
   }
 
   return {
-    _id: imdb_code,
+    imdbId: imdb_code,
     origin: MOVIES_ORIGINS.YTS,
     title,
     description: summary,
@@ -132,7 +131,7 @@ function formatMovieFromPopcornTime({
   }
 
   return {
-    _id: imdbID,
+    imdbId: imdbID,
     origin: MOVIES_ORIGINS.POPCORN_TIME,
     title,
     description: synopsis,
@@ -174,11 +173,11 @@ function removeDuplicates(movies) {
   const foundIds = new Set();
 
   for (const movie of movies) {
-    if (foundIds.has(movie._id)) continue;
+    if (foundIds.has(movie.imdbId)) continue;
 
     moviesWithoutDuplicates.push(movie);
 
-    foundIds.add(movie._id);
+    foundIds.add(movie.imdbId);
   }
 
   return moviesWithoutDuplicates;
@@ -215,7 +214,7 @@ async function completeMovieInformations(movie) {
   try {
     const [{ vote_average, poster_path }, { cast, crew }] = await Promise.all(
       ["", "/credits"].map(url =>
-        got(`https://api.themoviedb.org/3/movie/${movie._id}${url}`, {
+        got(`https://api.themoviedb.org/3/movie/${movie.imdbId}${url}`, {
           searchParams: {
             api_key: process.env.TMDB_API_KEY
           }
@@ -229,7 +228,7 @@ async function completeMovieInformations(movie) {
         : toTMDBImage(poster_path);
 
     if (image === null) {
-      console.error("Could not get a picture for this movie", movie._id);
+      console.error("Could not get a picture for this movie", movie.imdbId);
       return null;
     }
 
@@ -245,7 +244,12 @@ async function completeMovieInformations(movie) {
       image
     };
   } catch (e) {
-    console.error(e, movie._id, movie.origin);
+    if (e.response && e.response.statusCode === 404) {
+      console.error(`Could not find ${movie.imdbId} on IMDB`);
+      return null;
+    }
+
+    console.error(e, movie.imdbId, movie.origin);
     return null;
   }
 }
@@ -260,7 +264,7 @@ function checkDBEntriesIntegrity(movies) {
   const schema = Joi.array()
     .items(
       Joi.object({
-        _id: Joi.string().required(),
+        imdbId: Joi.string().required(),
         origin: Object.values(MOVIES_ORIGINS), // OR `Popcorn`
         title: Joi.string().required(),
         description: Joi.string()
@@ -353,5 +357,6 @@ async function getSubtitles(id) {
   );
 }
 
+module.exports.MOVIES_ORIGINS = MOVIES_ORIGINS;
 module.exports.getMovies = getMovies;
 module.exports.getSubtitles = getSubtitles;
