@@ -2,6 +2,8 @@ const polka = require("polka");
 const send = require("@polka/send-type");
 const sirv = require("sirv");
 const compress = require("compression")();
+const ffmpeg = require("fluent-ffmpeg");
+const { join } = require("path");
 
 const connectDB = require("./db");
 const { getSubtitles } = require("./get-movies");
@@ -123,6 +125,14 @@ function setupRouter() {
       // Start downloading the movie.
 
       const { emitter, file } = await streamTorrent(torrent);
+
+      // Use ffmpeg on it.
+      ffmpeg(file.createReadStream())
+        .videoCodec("libx264")
+        .audioCode("aac")
+        .format("hls")
+        .outputOptions(["-hls_time 6", "-hls_playlist_type event"])
+        .save(join(__dirname, "./files", "stream.m3u8"));
 
       STATE.files.set(id, file);
 
