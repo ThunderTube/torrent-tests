@@ -2,9 +2,7 @@
 
 <title>Torrent Stream Tests</title>
 
-<video id="video" controls>
-  <source id="source" src="/video/chunks/tt1950186/720p" type="video/mp4" />
-</video>
+<video id="video" controls></video>
 
 <script>
   const ID = "tt1950186";
@@ -19,18 +17,34 @@
     });
 
   const intervalId = setInterval(poll, 10_000);
+  poll();
 
   function poll() {
     fetch(`/video/status/${ID}/${RESOLUTION}`)
-      .then(res => res.text())
+      .then(res => {
+        if (res.status !== 200) {
+          throw new Error("Bad response");
+        }
+        return res.text();
+      })
       .then(state => {
-        if (state === "FIRST_CHUNKS_LOADED") {
-          source.src = `/video/chunks/${ID}/${RESOLUTION}`;
+        if (["FIRST_CHUNKS_LOADED", "LOADED"].includes(state)) {
+          addSource(`/video/chunks/${ID}/${RESOLUTION}`, "video/mp4");
+
           clearInterval(intervalId);
           return;
         }
 
         console.log("poll state =", state);
-      });
+      })
+      .catch(console.error);
+  }
+
+  function addSource(url, type) {
+    const source = document.createElement("source");
+    source.src = url;
+    source.type = type;
+
+    video.appendChild(source);
   }
 </script>

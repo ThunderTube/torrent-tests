@@ -2,6 +2,8 @@ const torrentStream = require("torrent-stream");
 const { join } = require("path");
 const EventEmitter = require("events");
 
+const { TorrentFile } = require("./file");
+
 const MIN_STREAMING_AUTHORIZATION = 20;
 
 function lastContinuousElement(elements) {
@@ -32,8 +34,8 @@ class Torrent {
       ]
     });
 
-    this._AUTHORIZED_EXTENSIONS = [".mp4", ".mkv"];
-    this._file = [];
+    this._AUTHORIZED_EXTENSIONS = [".mp4", ".mkv", ".webm"];
+    this._file = null;
   }
 
   download() {
@@ -45,11 +47,14 @@ class Torrent {
 
     return new Promise((resolve, reject) => {
       this._engine.on("ready", () => {
-        this._file = this._engine.files.find(({ name }) =>
+        const file = this._engine.files.find(({ name }) =>
           this._AUTHORIZED_EXTENSIONS.some(ext => name.endsWith(ext))
         );
 
-        this._file.select();
+        // Select the file in order to request its downloading
+        file.select();
+
+        this._file = new TorrentFile(file, this._engine.path);
 
         resolve({
           emitter,
@@ -80,6 +85,7 @@ class Torrent {
       });
 
       this._engine.on("idle", () => {
+        this._file._finishDownloading();
         emitter.emit("end");
       });
     });

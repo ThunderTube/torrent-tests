@@ -9,12 +9,36 @@ const connectDB = require("./db");
 const { getSubtitles } = require("./get-movies");
 const { streamTorrent } = require("./stream");
 const { Movie, TORRENT_STATUSES } = require("./models/movie");
+const { FSFile } = require("./file");
 
 const PORT = 3096;
 
 const STATE = {
   files: new Map()
 };
+
+function toFilesMapKey(id, resolution) {
+  return `${id}|${resolution}`;
+}
+
+async function getMovieStream(id, resolution) {
+  try {
+    const torrentFile = STATE.files.get(toFilesMapKey(id, resolution));
+    if (torrentFile !== undefined) {
+      console.info("use torrent stream");
+      return torrentFile;
+    }
+
+    const fsPath = await Movie.getTorrentFSPath({ imdbId: id, resolution });
+    if (fsPath === undefined) return undefined;
+
+    console.info("use file stream");
+    return new FSFile(fsPath);
+  } catch (e) {
+    console.error(e);
+    return undefined;
+  }
+}
 
 async function app() {
   await connectDB();
@@ -126,15 +150,7 @@ function setupRouter() {
 
       const { emitter, file } = await streamTorrent(torrent);
 
-      // Use ffmpeg on it.
-      ffmpeg(file.createReadStream())
-        .videoCodec("libx264")
-        .audioCode("aac")
-        .format("hls")
-        .outputOptions(["-hls_time 6", "-hls_playlist_type event"])
-        .save(join(__dirname, "./files", "stream.m3u8"));
-
-      STATE.files.set(id, file);
+      STATE.files.set(toFilesMapKey(id, resolution), file);
 
       emitter.on("launch", async () => {
         console.log("launch streaming");
@@ -186,50 +202,29 @@ function setupRouter() {
     })
     .get("/video/chunks/:id/:resolution", async (req, res) => {
       const {
-        params: { id, resolution },
-        headers: { range }
+        params: { id, resolution }
       } = req;
-      const [min, max] = range.slice(6, -1).split("-");
 
       try {
-        const file = STATE.files.get(id);
+        const file = await getMovieStream(id, resolution);
         if (file === undefined) {
           send(res, 404);
           return;
         }
-        // const filePath = await Movie.getTorrentFSPath({
-        //   imdbId: id,
-        //   resolution
-        // });
-        // const localFilePath = join(__dirname, "./movies", filePath);
-        // const fileStats = await stat(localFilePath);
-        // const fileSize = fileStats.size;
 
-        const start = Number(min);
-        const end = max ? Number(max) : file.length;
-        const chunkSize = end - start + 1;
-
-        res.writeHead(206, {
-          "Content-Range": `bytes ${start}-${end}/${file.length}`,
-          "Accept-Ranges": "bytes",
-          "Content-Length": chunkSize,
-          "Content-Type": "video/mp4"
-        });
-        file
-          .createReadStream({
-            start,
-            end
-          })
-          .pipe(res);
+        await file.pipe(res);
       } catch (e) {
-        console.error(e);
-        send(res, 500);
+        if (e.code !== "ERR_STREAM_PREMATURE_CLOSE") {
+          console.error(e);
+          send(res, 500);
+          return;
+        }
       }
     })
     .listen(PORT, err => {
       if (err) throw err;
 
-      console.log(`> Running on localhost:${PORT}`);
+      console.log(`> Running on http://localhost:${PORT}`);
     });
 }
 
