@@ -17,21 +17,20 @@ function transcode(extension, stream) {
   }
 
   // Transcode the video stream to a WebM stream
+  // Cf. https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/274
   return ffmpeg(stream)
     .on("start", () => console.log("start transcoding"))
     .on("error", error => console.error("error during transcoding", error))
     .format("webm")
-    .audioBitrate(128)
-    .audioCodec("libvorbis")
-    .videoBitrate(1024)
-    .videoCodec("libvpx")
+    .withVideoCodec("libvpx")
+    .addOptions(["-qmin 0", "-qmax 50", "-crf 5"])
+    .withVideoBitrate(1024)
+    .withAudioCodec("libvorbis")
     .stream();
 }
 
 class TorrentFile {
   constructor(file, basePath) {
-    console.log("file =", file);
-
     this._file = file;
     this._finishedFSDownloading = false;
     this._fsPath = join(basePath, file.path);

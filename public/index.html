@@ -5,8 +5,10 @@
 <video id="video" controls></video>
 
 <script>
-  const ID = "tt1950186";
-  const RESOLUTION = "720p";
+  const params = new URLSearchParams(window.location.search);
+
+  const ID = params.get("id");
+  const RESOLUTION = params.get("resolution");
   const source = document.getElementById("source");
   const video = document.getElementById("video");
 

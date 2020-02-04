@@ -2,8 +2,6 @@ const polka = require("polka");
 const send = require("@polka/send-type");
 const sirv = require("sirv");
 const compress = require("compression")();
-const ffmpeg = require("fluent-ffmpeg");
-const { join } = require("path");
 
 const connectDB = require("./db");
 const { getSubtitles } = require("./get-movies");
